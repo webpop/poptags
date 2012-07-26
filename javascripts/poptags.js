@@ -680,7 +680,7 @@
       this.scope = scope || {};
       if (this.no_tag) {
         if (this.no_tag === this.parent.last_empty) {
-          return this.enclosing.render(this.scope);
+          return wrap(this.with_filters(this.enclosing.render(this.scope), this.options), this.get_option('wrap'), this.get_option('class'));
         } else {
           return '';
         }

@@ -1,7 +1,7 @@
 pop = PopTags
 
 describe "PopTags", ->
-  describe "When rendering a plain text with not tags", ->
+  describe "When rendering a plain text without tags", ->
     it "should display the template", ->
       template = "I am a plain text"
       expect(new pop.Template({template: template}).render({})).toEqual("I am a plain text")
@@ -180,10 +180,17 @@ describe "PopTags", ->
         @require = (name) ->
           if (name == 'ext') then {title: null}
 
-      it "shuld render the no tag when", ->
+      it "should render the no tag when", ->
         expect(new pop.Template({template: @template, require: @require})
         .render({}))
         .toEqual("<title>No title</title>")
+
+      it "should handle wrap and class on a no tag", ->
+        @template = "<pop:ext:title>Hello</pop:ext:title><pop:ext:no_title wrap='p' class='none'>No title</pop:ext:no_title>"
+        expect(new pop.Template({template: @template, require: @require})
+        .render({}))
+        .toEqual("<p class=\"none\">No title</p>")
+
 
   describe "When rendering tags within a tag that changes the scope to that of an extension", ->
     beforeEach ->

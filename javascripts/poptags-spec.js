@@ -5,7 +5,7 @@
   pop = PopTags;
 
   describe("PopTags", function() {
-    describe("When rendering a plain text with not tags", function() {
+    describe("When rendering a plain text without tags", function() {
       return it("should display the template", function() {
         var template;
         template = "I am a plain text";
@@ -282,11 +282,18 @@
             }
           };
         });
-        return it("shuld render the no tag when", function() {
+        it("should render the no tag when", function() {
           return expect(new pop.Template({
             template: this.template,
             require: this.require
           }).render({})).toEqual("<title>No title</title>");
+        });
+        return it("should handle wrap and class on a no tag", function() {
+          this.template = "<pop:ext:title>Hello</pop:ext:title><pop:ext:no_title wrap='p' class='none'>No title</pop:ext:no_title>";
+          return expect(new pop.Template({
+            template: this.template,
+            require: this.require
+          }).render({})).toEqual("<p class=\"none\">No title</p>");
         });
       });
     });

@@ -616,7 +616,14 @@ class Tag extends Node
 
     # Handle the logic for <pop:no_ tags
     if @no_tag
-      return if @no_tag == @parent.last_empty then @enclosing.render(@scope) else ''
+      return if @no_tag == @parent.last_empty
+        wrap(
+          @with_filters(@enclosing.render(@scope), @options),
+          @get_option('wrap'),
+          @get_option('class')
+        )
+      else
+        ''
     else
       @parent.last_empty = null
 
