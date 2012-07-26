@@ -86,9 +86,6 @@
 #      html == "<h1>Hello, World!</h1>"
 #
 
-# Make sure the exports object exists whether PopTags is being required as a CommonJS module or used in the browser
-exports = {} unless exports?
-
 # Regular Expressions and delimiters used by the parser
 CONSTANTS =
   LAYOUT_TAG:       'layout'
@@ -689,8 +686,9 @@ class Template
   
 
 # Export Template and TemplateError
-exports.Template = Template
-exports.TemplateError = TemplateError
+if exports?
+  exports.Template = Template
+  exports.TemplateError = TemplateError
 
 # Make sure PopTags works in the browser as well
 if window?
