@@ -598,7 +598,11 @@ class Tag extends Node
 
   # Render a region of a layout with a block or the default output of the region.
   render_region: (block) ->
-    return if block then block.render(@scope) else @enclosing.render()
+    wrap(
+      @with_filters((if block then block.render(@scope) else @enclosing.render()), @options),
+      @get_option('wrap'),
+      @get_option('class')
+    )
 
   # Apply any filters specified in the options to a value
   with_filters: (value) ->

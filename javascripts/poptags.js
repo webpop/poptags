@@ -652,11 +652,7 @@
     };
 
     Tag.prototype.render_region = function(block) {
-      if (block) {
-        return block.render(this.scope);
-      } else {
-        return this.enclosing.render();
-      }
+      return wrap(this.with_filters((block ? block.render(this.scope) : this.enclosing.render()), this.options), this.get_option('wrap'), this.get_option('class'));
     };
 
     Tag.prototype.with_filters = function(value) {

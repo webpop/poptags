@@ -447,7 +447,7 @@
           }).render(this.content).trim()).toEqual("Hello");
         });
       });
-      describe("when the layout is chosen by an pop tag", function() {
+      return describe("when the layout is chosen by an pop tag", function() {
         beforeEach(function() {
           var _this = this;
           this.layout = "<h1><pop:region name='main'/></h1>";
@@ -468,33 +468,54 @@
           }).render(this.content).trim()).toEqual("<h1>Hello</h1>");
         });
       });
-      return describe("with a no_ tag and an include inside", function() {
-        beforeEach(function() {
-          var _this = this;
-          this.template = "<pop:layout name='outer' /><pop:block region='main'><pop:content><pop:test>Test: <pop:include template='inner' /></pop:test><pop:no_test><pop:include template='inner' /></pop:no_test></pop:content></pop:block>";
-          this.outer = "<pop:region name='main' />";
-          this.inner = "<h1><pop:title /></h1>";
-          this.content = {
-            content: {
-              title: "Hello",
-              test: []
-            }
-          };
-          return this.read = function(name) {
-            if (name === 'inner') {
-              return _this.inner;
-            }
-            if (name === 'layouts/outer') {
-              return _this.outer;
-            }
-          };
-        });
-        return it("should render the result of evaluating the pop tag", function() {
-          return expect(new pop.Template({
-            template: this.template,
-            read: this.read
-          }).render(this.content).trim()).toEqual("<h1>Hello</h1>");
-        });
+    });
+    describe("when a region uses wrap and class", function() {
+      beforeEach(function() {
+        var _this = this;
+        this.layout = "<pop:region name='main' wrap='div' class='main'/>";
+        this.template = "<pop:layout name='<pop:the_layout/>'/><pop:block region='main'>Hello</pop:block>";
+        this.content = {
+          the_layout: "layout"
+        };
+        return this.read = function(name) {
+          if (name === 'layouts/layout') {
+            return _this.layout;
+          }
+        };
+      });
+      return it("should render the right layout", function() {
+        return expect(new pop.Template({
+          template: this.template,
+          read: this.read
+        }).render(this.content).trim()).toEqual('<div class="main">Hello</div>');
+      });
+    });
+    describe("with a no_ tag and an include inside", function() {
+      beforeEach(function() {
+        var _this = this;
+        this.template = "<pop:layout name='outer' /><pop:block region='main'><pop:content><pop:test>Test: <pop:include template='inner' /></pop:test><pop:no_test><pop:include template='inner' /></pop:no_test></pop:content></pop:block>";
+        this.outer = "<pop:region name='main' />";
+        this.inner = "<h1><pop:title /></h1>";
+        this.content = {
+          content: {
+            title: "Hello",
+            test: []
+          }
+        };
+        return this.read = function(name) {
+          if (name === 'inner') {
+            return _this.inner;
+          }
+          if (name === 'layouts/outer') {
+            return _this.outer;
+          }
+        };
+      });
+      return it("should render the result of evaluating the pop tag", function() {
+        return expect(new pop.Template({
+          template: this.template,
+          read: this.read
+        }).render(this.content).trim()).toEqual("<h1>Hello</h1>");
       });
     });
     describe("no content tag inside a collection", function() {

@@ -296,6 +296,18 @@ describe "PopTags", ->
         .render(@content).trim())
         .toEqual("<h1>Hello</h1>")
 
+   describe "when a region uses wrap and class", ->
+     beforeEach ->
+       @layout = "<pop:region name='main' wrap='div' class='main'/>"
+       @template = "<pop:layout name='<pop:the_layout/>'/><pop:block region='main'>Hello</pop:block>"
+       @content = {the_layout: "layout"}
+       @read = (name) => if name == 'layouts/layout' then @layout
+
+     it "should render the right layout", ->
+       expect(new pop.Template({template: @template, read: @read})
+       .render(@content).trim())
+       .toEqual('<div class="main">Hello</div>')
+
     describe "with a no_ tag and an include inside", ->
       beforeEach ->
         @template = "<pop:layout name='outer' /><pop:block region='main'><pop:content><pop:test>Test: <pop:include template='inner' /></pop:test><pop:no_test><pop:include template='inner' /></pop:no_test></pop:content></pop:block>"
