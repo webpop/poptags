@@ -635,6 +635,7 @@ class Tag extends Node
         read: @read
         require: @require
         filters: @ast.filters
+        value_wrapper: @value_wrapper
       ).compile()
       @enclosing.parent = this
 
@@ -646,6 +647,7 @@ class Tag extends Node
         read: @read
         require: @require
         filters: @ast.filters
+        value_wrapper: @value_wrapper
       ).compile()
       @enclosing.parent = this
 

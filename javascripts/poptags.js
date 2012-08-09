@@ -685,7 +685,8 @@
           name: template_name,
           read: this.read,
           require: this.require,
-          filters: this.ast.filters
+          filters: this.ast.filters,
+          value_wrapper: this.value_wrapper
         }).compile();
         this.enclosing.parent = this;
       }
@@ -695,7 +696,8 @@
           name: "layouts/" + layout_name,
           read: this.read,
           require: this.require,
-          filters: this.ast.filters
+          filters: this.ast.filters,
+          value_wrapper: this.value_wrapper
         }).compile();
         this.enclosing.parent = this;
       }
