@@ -329,7 +329,8 @@ class Parser
 
         if tag_attributes
           tag_attributes.replace CONSTANTS.ATTRIBUTES_RE, (match, name, doublequoted_value, singlequoted_value) ->
-            if (value = doublequoted_value or singlequoted_value).match(CONSTANTS.CONTAINS_TAGS_RE)
+            value = doublequoted_value or singlequoted_value
+            if value && value.match(CONSTANTS.CONTAINS_TAGS_RE)
               options[name] = new Template({template: value, filters: handler.filters, read: @read, require: handler.require}).compile()
               options[name].parent = handler.current_tag
             else
