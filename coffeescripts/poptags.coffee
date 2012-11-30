@@ -101,6 +101,7 @@ CONSTANTS =
   COMMENT_TAG:      "<!--"
   COMMENT_TAG_END:  "-->"
   CONTAINS_TAGS_RE: /<pop:/
+  COLLECTION_HELPER_TAGS: ['first', 'last', 'odd', 'even']
 
   # Tags that should be selfclosing when used in a break attribute
   SELF_CLOSING:
@@ -517,25 +518,27 @@ class Tag extends Node
     result = []
     index  = 0
     
-    _first = self.scope.first
-    _last  = self.scope.last
-
+    oldProperties = {}
+    for prop in CONSTANTS.COLLECTION_HELPER_TAGS
+      oldProperties[prop] = self.scope[prop]
+    
     c.forEach (el) ->
+      # We add some helper tags to the scope for each element in the collection
+      # `<pop:first>`, `<pop:last>`, `<pop:odd>` and `<pop:even>`
       self.scope.first = index == 0
       self.scope.last  = index == c.length - 1
+      self.scope.odd   = index % 2 == 0 # index is zero based
+      self.scope.even  = index % 2 != 0
       value = self.render_value(if self.value_wrapper then self.value_wrapper.wrap(el, self) else el)
       value = if fn then fn.call(self, value, index) else value
       index++
       result.push value
   
-    if _first?
-      self.scope.first = _first
-    else
-      delete self.scope.first
-    if _last?
-      self.scope.last  = _last
-    else
-      delete self.scope.last
+    for prop in CONSTANTS.COLLECTION_HELPER_TAGS
+      if typeof oldProperties[prop] == "undefined"
+        delete self.scope[prop]
+      else
+        self.scope[prop] = oldProperties[prop]
 
     result.join("")
 

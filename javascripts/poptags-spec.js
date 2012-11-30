@@ -89,7 +89,7 @@
             template: "<pop:content break='li'><pop:first>First</pop:first><pop:last>Last</pop:last> <pop:title/></pop:content>"
           }).render(this.content)).toEqual("<li>First Hello</li><li>Last World</li>");
         });
-        return it("should handle first and last when the array elements are functions", function() {
+        it("should handle first and last when the array elements are functions", function() {
           this.content = {
             content: function() {
               return [
@@ -104,6 +104,22 @@
           return expect(new pop.Template({
             template: "<pop:content break='li'><pop:first>First</pop:first><pop:last>Last</pop:last> <pop:title/></pop:content>"
           }).render(this.content)).toEqual("<li>First Hello</li><li>Last World</li>");
+        });
+        return it("should handle odd and even", function() {
+          this.content = {
+            entries: [
+              {
+                title: "First"
+              }, {
+                title: "Second"
+              }, {
+                title: "Third"
+              }
+            ]
+          };
+          return expect(new pop.Template({
+            template: "<pop:entries break=', '><pop:title/> - <pop:odd>Odd</pop:odd><pop:even>Even</pop:even></pop:entries>"
+          }).render(this.content)).toEqual("First - Odd, Second - Even, Third - Odd");
         });
       });
     });

@@ -18,6 +18,7 @@
     COMMENT_TAG: "<!--",
     COMMENT_TAG_END: "-->",
     CONTAINS_TAGS_RE: /<pop:/,
+    COLLECTION_HELPER_TAGS: ['first', 'last', 'odd', 'even'],
     SELF_CLOSING: {
       br: true,
       hr: true
@@ -522,7 +523,7 @@
     };
 
     Tag.prototype.render_collection = function(c) {
-      var brk, fn, index, result, self, _first, _last;
+      var brk, fn, index, oldProperties, prop, result, self, _i, _j, _len, _len1, _ref, _ref1;
       if (!c.length) {
         return "";
       }
@@ -546,26 +547,31 @@
       fn = brk && breakFn(c, brk, this.get_option('last'));
       result = [];
       index = 0;
-      _first = self.scope.first;
-      _last = self.scope.last;
+      oldProperties = {};
+      _ref = CONSTANTS.COLLECTION_HELPER_TAGS;
+      for (_i = 0, _len = _ref.length; _i < _len; _i++) {
+        prop = _ref[_i];
+        oldProperties[prop] = self.scope[prop];
+      }
       c.forEach(function(el) {
         var value;
         self.scope.first = index === 0;
         self.scope.last = index === c.length - 1;
+        self.scope.odd = index % 2 === 0;
+        self.scope.even = index % 2 !== 0;
         value = self.render_value(self.value_wrapper ? self.value_wrapper.wrap(el, self) : el);
         value = fn ? fn.call(self, value, index) : value;
         index++;
         return result.push(value);
       });
-      if (_first != null) {
-        self.scope.first = _first;
-      } else {
-        delete self.scope.first;
-      }
-      if (_last != null) {
-        self.scope.last = _last;
-      } else {
-        delete self.scope.last;
+      _ref1 = CONSTANTS.COLLECTION_HELPER_TAGS;
+      for (_j = 0, _len1 = _ref1.length; _j < _len1; _j++) {
+        prop = _ref1[_j];
+        if (typeof oldProperties[prop] === "undefined") {
+          delete self.scope[prop];
+        } else {
+          self.scope[prop] = oldProperties[prop];
+        }
       }
       return result.join("");
     };

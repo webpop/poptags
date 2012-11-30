@@ -54,6 +54,12 @@ describe "PopTags", ->
         .render(@content))
         .toEqual("<li>First Hello</li><li>Last World</li>")
 
+      it "should handle odd and even", ->
+        @content = {entries: [{title: "First"}, {title: "Second"}, {title: "Third"}]}
+        expect(new pop.Template({template: "<pop:entries break=', '><pop:title/> - <pop:odd>Odd</pop:odd><pop:even>Even</pop:even></pop:entries>"})
+        .render(@content))
+        .toEqual("First - Odd, Second - Even, Third - Odd")
+
   describe "with an array of strings", ->
     beforeEach ->
       @content = {titles: ["Hello", "World"]}
