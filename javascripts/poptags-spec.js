@@ -735,6 +735,15 @@
         }).render(this.content).trim()).toEqual("post 1<br />post 2");
       });
     });
+    describe("opening up a tag for a string", function() {
+      return it("should separate the string into lines for the pop:lines tag", function() {
+        return expect(new pop.Template({
+          template: "<pop:text><ul><pop:lines break='li'/></ul></pop:text>"
+        }).render({
+          text: "First\nSecond\nThird"
+        }).trim()).toEqual("<ul><li>First</li><li>Second</li><li>Third</li></ul>");
+      });
+    });
     describe("a self-closing tag for a boolean element that is true", function() {
       beforeEach(function() {
         this.template = '<pop:readmore />';

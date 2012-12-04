@@ -467,6 +467,12 @@ describe "PopTags", ->
       .render(@content).trim())
       .toEqual("post 1<br />post 2")
 
+  describe "opening up a tag for a string", ->
+    it "should separate the string into lines for the pop:lines tag", ->
+      expect(new pop.Template({template: "<pop:text><ul><pop:lines break='li'/></ul></pop:text>"})
+        .render({text: "First\nSecond\nThird"}).trim())
+        .toEqual("<ul><li>First</li><li>Second</li><li>Third</li></ul>")
+
   describe "a self-closing tag for a boolean element that is true", ->
     beforeEach ->
       @template = '<pop:readmore />'

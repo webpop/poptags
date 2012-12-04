@@ -143,6 +143,9 @@ delimitFn = (open, close) ->
 
   (value) -> open + value + close
 
+linesFn = (obj) ->
+  obj.toString().split("\n")
+
 # The Exception Class thrown by the parser
 class TemplateError extends Error
   constructor: (message, location, filename) ->
@@ -547,7 +550,7 @@ class Tag extends Node
   render_object: (obj) ->
     if obj || obj == 0
       if @has_children()
-        return @enclosing.render(if typeof(obj) == 'object' then obj else {value: obj})
+        return @enclosing.render(if typeof(obj) == 'object' then obj else {value: obj, lines: -> linesFn(obj)})
       else if typeof(obj) == 'object' && 'html' of obj
         value = obj.html && (if obj.html.call then obj.html.call(obj, @render_options()) else obj.html)
         return value or (if value == 0 then value else '')
