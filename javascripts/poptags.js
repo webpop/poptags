@@ -17,6 +17,7 @@
     END_TAG: "</pop:",
     COMMENT_TAG: "<!--",
     COMMENT_TAG_END: "-->",
+    IE_CONDITIONAL_COMMENT_RE: /^<!(|--)\[[^\]]+\]>/,
     CONTAINS_TAGS_RE: /<pop:/,
     COLLECTION_HELPER_TAGS: ['first', 'last', 'odd', 'even'],
     SELF_CLOSING: {
@@ -261,11 +262,17 @@
       while (template_chunk) {
         tag_match = null;
         if (template_chunk.indexOf(CONSTANTS.COMMENT_TAG) === 0) {
-          tag_match = true;
-          next_tag_index = template_chunk.indexOf(CONSTANTS.COMMENT_TAG_END);
-          text = next_tag_index < 0 ? template_chunk : template_chunk.substring(0, next_tag_index);
-          handler.text(this, text);
-          offset = next_tag_index < 0 ? template_chunk.length : next_tag_index;
+          if (tag_match = template_chunk.match(CONSTANTS.IE_CONDITIONAL_COMMENT_RE)) {
+            text = template_chunk.substring(0, tag_match[0].length);
+            handler.text(this, text);
+            offset = tag_match[0].length;
+          } else {
+            tag_match = true;
+            next_tag_index = template_chunk.indexOf(CONSTANTS.COMMENT_TAG_END);
+            text = next_tag_index < 0 ? template_chunk : template_chunk.substring(0, next_tag_index);
+            handler.text(this, text);
+            offset = next_tag_index < 0 ? template_chunk.length : next_tag_index;
+          }
         } else if (template_chunk.indexOf(CONSTANTS.START_TAG) === 0) {
           if (!(tag_match = template_chunk.match(CONSTANTS.START_TAG_RE))) {
             throw new TemplateError("syntax error", this.get_location(), this.filename);

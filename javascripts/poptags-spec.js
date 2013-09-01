@@ -1318,10 +1318,16 @@
           number: 10
         };
       });
-      return it("should not process html comments", function() {
+      it("should not process html comments", function() {
         return expect(new pop.Template({
           template: this.template
         }).render(this.content)).toEqual("<!-- <pop:number /> -->");
+      });
+      return it("should process conditional comments", function() {
+        this.template = "<!--[if IE 6]> <pop:number /> <![endif]-->";
+        return expect(new pop.Template({
+          template: this.template
+        }).render(this.content)).toEqual("<!--[if IE 6]> 10 <![endif]-->");
       });
     });
   });

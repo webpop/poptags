@@ -42,12 +42,12 @@ describe "PopTags", ->
 
       it "should repeat the enclosed tags and perform the substitution for each element", ->
         expect(new pop.Template({template: @template}).render(@content)).toEqual("<li>Hello</li><li>World</li>")
-      
+
       it "should handle first and last", ->
         expect(new pop.Template({template: "<pop:content break='li'><pop:first>First</pop:first><pop:last>Last</pop:last> <pop:title/></pop:content>"})
         .render(@content))
         .toEqual("<li>First Hello</li><li>Last World</li>")
-      
+
       it "should handle first and last when the array elements are functions", ->
         @content = {content: -> [{title: "Hello"}, {title: "World"}]}
         expect(new pop.Template({template: "<pop:content break='li'><pop:first>First</pop:first><pop:last>Last</pop:last> <pop:title/></pop:content>"})
@@ -73,17 +73,17 @@ describe "PopTags", ->
 
       it "should handle just one string", ->
           expect(new pop.Template({template: @template}).render({titles: ["Hello"]})).toEqual("Hello")
-      
+
       it "should handle first and last", ->
          expect(new pop.Template({template: '<pop:titles break=", "><pop:first>First</pop:first><pop:last>Last</pop:last> <pop:value/></pop:titles>'})
          .render(@content))
          .toEqual( "First Hello, Last World")
-      
+
       it "should not have first and last outside the collection", ->
          expect(new pop.Template({template: '<pop:titles break=", "/><pop:first>First</pop:first><pop:last>Last</pop:last>'})
          .render(@content))
          .toEqual("Hello, World")
-    
+
     describe "when rendering nested array and pop:first tags", ->
       beforeEach ->
         @template = '<pop:outer><pop:inner><pop:title/></pop:inner>, <pop:first><pop:title/></pop:first></pop:outer>'
@@ -92,7 +92,7 @@ describe "PopTags", ->
             title: "World",
             inner: [{title: "Hello"}]
           }]
-      
+
       it "should render the strings", ->
         expect(new pop.Template({template: @template})
         .render(@nested))
@@ -115,7 +115,7 @@ describe "PopTags", ->
         expect(new pop.Template({template: this.template})
         .render(@content))
         .toEqual("<h2>Hello, World</h2>")
-      
+
       it "should still respect the no_ tag", ->
         content = {titles: []}
         template = "<pop:titles repeat='false'>Something</pop:titles><pop:no_titles>Hello, World</pop:no_titles>"
@@ -232,18 +232,18 @@ describe "PopTags", ->
         expect(new pop.Template({template: @template})
         .render(@content))
         .toEqual("<li>1</li><li>2</li><li>3</li>")
-    
+
     describe "when passing an extension method as the option", ->
       beforeEach ->
         sample_extension = {limit: -> 3}
         @require = (name) -> if (name == 'sample_extension') then sample_extension
         @template = "<pop:posts limit='<pop:sample_extension:limit/>'><li><pop:id /></li></pop:posts>"
-      
+
       it "should call the function and pass the result to the tag", ->
         expect(new pop.Template({template: @template, require: @require})
         .render(@content))
         .toEqual("<li>1</li><li>2</li><li>3</li>")
-    
+
     describe "when passing an extension method as the option to a tag with a html function", ->
       beforeEach ->
         sample_extension =
@@ -253,7 +253,7 @@ describe "PopTags", ->
           greet:
             html: (options) -> "Hello, " + options.name
         @template = "<pop:greet name='<pop:sample_extension:name/>'/>"
-      
+
       it "should call the function and pass the result to the tag", ->
         expect(new pop.Template({template: @template, require: @require})
         .render(@content))
@@ -342,7 +342,7 @@ describe "PopTags", ->
         expect(new pop.Template({template: @template})
         .render(@content).trim())
         .toEqual("No Title Yes Title")
-  
+
   describe "using lookup on the scope in a tag", ->
     beforeEach ->
       @template = "<pop:content><pop:something><pop:t name='title'/></pop:something></pop:content>"
@@ -350,7 +350,7 @@ describe "PopTags", ->
         content: {title: "Hello, World"}
         something: {testing: "Testing"}
         t: (options, enclosed, scope) -> scope.lookup(options.name)
-    
+
     it "should crawl up the scope chain", ->
       expect(new pop.Template({template: @template})
       .render(@content).trim())
@@ -408,7 +408,7 @@ describe "PopTags", ->
       expect(new pop.Template({template: @template})
       .render(@content).trim())
       .toEqual("")
-    
+
     it "should not add the wrap element when the value is an empty array", ->
       this.content.title = [];
       expect(new pop.Template({template: @template})
@@ -421,7 +421,7 @@ describe "PopTags", ->
       expect(new pop.Template({template: template})
       .render(@content).trim())
       .toEqual("")
-    
+
     it "should work with a function returning an empty array", ->
       @content.title = -> []
       expect(new pop.Template({template: @template})
@@ -705,13 +705,13 @@ describe "PopTags", ->
       expect(new pop.Template({template: @template, read: @read})
       .render(this.content).trim())
       .toEqual("<div>Hello World</div>")
-  
+
   describe "an include tag with a composed dynamic template name", ->
     beforeEach ->
       @template = '<pop:content><div><pop:include template="templates/<pop:template />" /></div></pop:content>'
       @read = (name) -> if name == 'templates/hello-world' then "Hello <pop:content.title />" else null
       @content = {content: {title: 'World', template: 'hello-world'}}
-    
+
     it "should include the right template", ->
       expect(new pop.Template({template: @template, read: @read})
       .render(this.content).trim())
@@ -825,3 +825,9 @@ describe "PopTags", ->
       expect(new pop.Template({template: @template})
       .render(@content))
       .toEqual("<!-- <pop:number /> -->")
+
+    it "should process conditional comments", ->
+      @template ="<!--[if IE 6]> <pop:number /> <![endif]-->"
+      expect(new pop.Template({template: @template})
+      .render(@content))
+      .toEqual("<!--[if IE 6]> 10 <![endif]-->")

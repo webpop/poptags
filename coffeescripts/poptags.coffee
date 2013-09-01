@@ -5,7 +5,7 @@
 # Some template engines lets people do programming in the templates, either by
 # allowing the use of a programming language or by defining a programming language
 # for the template engine with if statements, loops, etc.
-# 
+#
 # Other template engines aims for a strict separation of templates and logic, and
 # force any presentational login into separate files.
 #
@@ -15,7 +15,7 @@
 # external libraries exposed to the engine and use them as it sees fit.
 #
 #### Usage
-# 
+#
 #     template = new PopTags.Template {
 #       template: "<pop:title wrap='h1'/>"
 #     }
@@ -23,18 +23,18 @@
 #       title: "Hello, World!"
 #     }
 #     html == "<h1>Hello, World!</h1>"
-# 
+#
 #### Reading Includes and Layouts
-# 
+#
 # The *read* function are used for looking up templates when using `<pop:include>` or `<pop:layout>`:
-# 
+#
 #     templates = {
 #       main: "<pop:include template='partial'/>"
 #       partial: "<pop:title wrap='h1'/>
 #     }
-# 
+#
 #     read = (name) -> templates[name]
-#     
+#
 #     template = new PopTags.Template {
 #       read: read
 #       name: "main"
@@ -43,11 +43,11 @@
 #       title: "Hello, World!"
 #     }
 #     html == "<h1>Hello, World!</h1>"
-# 
+#
 #### Filters
-# 
+#
 # PopTags allow you to define filters that can be applied via attributes.
-# 
+#
 #     filters = {
 #       format: (value, options) ->
 #         switch options.format
@@ -56,7 +56,7 @@
 #           when "downcase"
 #             value.toLowerCase()
 #     }
-#     
+#
 #     template = new PopTags.Template {
 #       template: "<pop:title format='upcase' wrap='h1' />"
 #       filters: filters
@@ -65,19 +65,19 @@
 #       title: "Hello, World!
 #     }
 #     html == "<h1>HELLO, WORLD!</h1>"
-# 
+#
 # Pulling in CommonJS modules
 # ===========================
-# 
+#
 # The *require* function are used for dynamically pulling in CommonJS and use their exported methods as tags:
-# 
+#
 #     modules = {
 #       hello:
 #         world: (options, enclosed, tags) -> "Hello, World!"
 #     }
-# 
+#
 #     require = (name) -> modules[name]
-#     
+#
 #     template = new PopTags.Template {
 #       template: "<pop:hello:world wrap='h1'/>"
 #       require: require
@@ -100,6 +100,7 @@ CONSTANTS =
   END_TAG:          "</pop:"
   COMMENT_TAG:      "<!--"
   COMMENT_TAG_END:  "-->"
+  IE_CONDITIONAL_COMMENT_RE: /^<!(|--)\[[^\]]+\]>/
   CONTAINS_TAGS_RE: /<pop:/
   COLLECTION_HELPER_TAGS: ['first', 'last', 'odd', 'even']
 
@@ -231,7 +232,7 @@ class Ast
       @includes[template_name] = include_tag
       new Parser(parser.read).parse(parser.read(template_name), this, template_name)
 
-  # Layout handler. Just as with includes we defer parsing of the layout if the 
+  # Layout handler. Just as with includes we defer parsing of the layout if the
   # layout attribute contains pop:tags
   _handle_layout: (parser, layout) ->
     layout_name = layout.options.name
@@ -280,7 +281,7 @@ class Parser
     newlines = template.substring(0, position).match(/\n/g)
     if newlines then newlines.length + 1 else 1
 
-  # Get the character count of the current line for a 
+  # Get the character count of the current line for a
   # given template and position.
   get_character: (template, line_number, position) ->
     template.split(/\n/)[0..line_number-1].join("").length
@@ -311,11 +312,16 @@ class Parser
       tag_match = null
 
       if template_chunk.indexOf(CONSTANTS.COMMENT_TAG) == 0
-        tag_match = true
-        next_tag_index = template_chunk.indexOf(CONSTANTS.COMMENT_TAG_END)
-        text = if next_tag_index < 0 then template_chunk else template_chunk.substring(0, next_tag_index)
-        handler.text(this, text)
-        offset = if next_tag_index < 0 then template_chunk.length else next_tag_index
+        if tag_match = template_chunk.match(CONSTANTS.IE_CONDITIONAL_COMMENT_RE)
+          text = template_chunk.substring(0, tag_match[0].length)
+          handler.text(this, text)
+          offset = tag_match[0].length
+        else
+          tag_match = true
+          next_tag_index = template_chunk.indexOf(CONSTANTS.COMMENT_TAG_END)
+          text = if next_tag_index < 0 then template_chunk else template_chunk.substring(0, next_tag_index)
+          handler.text(this, text)
+          offset = if next_tag_index < 0 then template_chunk.length else next_tag_index
 
       else if template_chunk.indexOf(CONSTANTS.START_TAG) == 0
         unless tag_match = template_chunk.match(CONSTANTS.START_TAG_RE)
@@ -458,7 +464,7 @@ class Tag extends Node
     tag.blocks && tag.blocks[@options.name]
 
   # Get the value this tag should render by looking up the tag name in the scope.
-  # The lookup travels up the AST tree until it finds a match or runs out of 
+  # The lookup travels up the AST tree until it finds a match or runs out of
   # parent nodes. If a value wrapper is present, the value is passed through its
   # *wrap* method.
   get_value: ->
@@ -489,7 +495,7 @@ class Tag extends Node
       tag for tag in @enclosing.collection when tag.render and filter(tag)
     else
       tag for tag in @enclosing.collection
-  
+
   # This method make sure that all keys in the option that are in reality
   # nested poptags templates get rendered.
   render_options: ->
@@ -520,11 +526,11 @@ class Tag extends Node
     fn     = brk && breakFn(c, brk, @get_option('last'))
     result = []
     index  = 0
-    
+
     oldProperties = {}
     for prop in CONSTANTS.COLLECTION_HELPER_TAGS
       oldProperties[prop] = self.scope[prop]
-    
+
     c.forEach (el) ->
       # We add some helper tags to the scope for each element in the collection
       # `<pop:first>`, `<pop:last>`, `<pop:odd>` and `<pop:even>`
@@ -536,7 +542,7 @@ class Tag extends Node
       value = if fn then fn.call(self, value, index) else value
       index++
       result.push value
-  
+
     for prop in CONSTANTS.COLLECTION_HELPER_TAGS
       if typeof oldProperties[prop] == "undefined"
         delete self.scope[prop]
@@ -576,7 +582,7 @@ class Tag extends Node
       while tag
         return tag.scope[name] if tag.scope[name]
         tag = tag.parent
-      
+
       return undefined
 
     result = value.call(@_tag_fn_scope || value, options, enclosing_wrapper, @scope)
@@ -696,7 +702,7 @@ class Template
 
   # Compile and render a template with a given scope
   render: (scope) -> @compile().render(scope)
-  
+
 
 # Export Template and TemplateError
 if exports?
